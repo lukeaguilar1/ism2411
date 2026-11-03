@@ -24,3 +24,8 @@ Each script is standalone. Open a terminal and run:
 ```
 python week07/functions.py
 ```
+
+## Reflection
+1) If I saw this commit history, it would show I'm organized and that i keep my work separate. The messages make it easy for co workers to see what I did without having to look through every line of code.
+2) Using Git makes experimenting less stressful because you can always go back if you break your code. Instead of making one save at the end, it forces you to save and commit working pieces step-by-step.
+3) I would add a .log file because they are auto generated.
