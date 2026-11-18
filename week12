@@ -1,0 +1,106 @@
+import csv
+from datetime import datetime
+
+INPUT_FILE = "data/sales.csv"
+CLEANED_FILE = "data/cleaned.csv"
+LOG_FILE = "data/run_log.txt"
+
+# EXERCISE 1 & 2: Read and print raw rows
+
+with open(INPUT_FILE, mode="r", newline="", encoding="utf-8") as f:
+    reader = csv.reader(f)
+    for row in reader:
+        print(row)
+
+# EXERCISE 3: Skip the header
+
+with open(INPUT_FILE, mode="r", newline="", encoding="utf-8") as f:
+    reader = csv.reader(f)
+    header = next(reader)
+    print(f"Header: {header}")
+    for row in reader:
+        print(row)
+
+# EXERCISE 4: Compute totals
+
+overall_revenue = 0.0
+
+with open(INPUT_FILE, mode="r", newline="", encoding="utf-8") as f:
+    reader = csv.reader(f)
+    next(reader)  # skip header
+    for row in reader:
+        product = row[0]
+        price = float(row[1])
+        quantity = int(row[2])
+        total = price * quantity
+        overall_revenue += total
+        print(f"{product}: {quantity} units × ${price:.2f} = ${total:.2f}")
+
+print(f"Overall Total Revenue: ${overall_revenue:.2f}")
+
+# EXERCISE 5: Filter and write cleaned.csv
+original_count = 0
+written_count = 0
+
+with open(INPUT_FILE, mode="r", newline="", encoding="utf-8") as infile, \
+     open(CLEANED_FILE, mode="w", newline="", encoding="utf-8") as outfile:
+    reader = csv.reader(infile)
+    writer = csv.writer(outfile)
+
+    next(reader)  # skip input header
+    writer.writerow(["Product", "Price", "Qty", "Total"])
+
+    for row in reader:
+        original_count += 1
+        product = row[0]
+        price = float(row[1])
+        quantity = int(row[2])
+        total = price * quantity
+
+        if total > 100:
+            writer.writerow([product, f"{price:.2f}", quantity, f"{total:.2f}"])
+            written_count += 1
+
+print(f"Wrote {written_count} qualifying rows out of {original_count} original rows.")
+
+# EXERCISE 6: csv.DictReader
+print("\n--- EXERCISE 6: csv.DictReader ---")
+# csv.DictReader is preferred when readability matters or column order might change, since
+# accessing fields by column name (e.g., row["price"]) is self-documenting and less brittle.
+# csv.reader is preferred for maximum speed on huge files or when CSVs lack a header row.
+
+dict_total_revenue = 0.0
+with open(INPUT_FILE, mode="r", newline="", encoding="utf-8") as f:
+    dict_reader = csv.DictReader(f)
+    for row in dict_reader:
+        product = row["product"]
+        price = float(row["price"])
+        quantity = int(row["quantity"])
+        total = price * quantity
+        dict_total_revenue += total
+        print(f"{product}: {quantity} units × ${price:.2f} = ${total:.2f}")
+
+print(f"DictReader Total Revenue: ${dict_total_revenue:.2f}")
+
+# EXERCISE 7: Sales summary by product
+
+product_summary = {}
+
+with open(INPUT_FILE, mode="r", newline="", encoding="utf-8") as f:
+    dict_reader = csv.DictReader(f)
+    for row in dict_reader:
+        product = row["product"]
+        revenue = float(row["price"]) * int(row["quantity"])
+        product_summary[product] = product_summary.get(product, 0.0) + revenue
+
+for product in sorted(product_summary):
+    print(f"{product}: ${product_summary[product]:.2f}")
+
+# EXERCISE 8: Append mode log
+timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+log_entry = f"[{timestamp}] Total Revenue Computed: ${overall_revenue:.2f}\n"
+
+with open(LOG_FILE, mode="a", encoding="utf-8") as log_f:
+    log_f.write(log_entry)
+
+print(f"Logged to {LOG_FILE}: {log_entry.strip()}")
